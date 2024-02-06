@@ -57,27 +57,31 @@ class IPOption_MRI(IPOption):
 # 主函数
 def main():
 
-    # 检查命令行参数数量
-    if len(sys.argv) < 3:
+    # 检查命令行参数数量#####################################################
+    if len(sys.argv) < 4:
+        print("Usage: send.py 'IP1,IP2,...' Message Number_of_Messages")
         exit(1)
 
-    # 获取目标地址和网络接口
-    addr = socket.gethostbyname(sys.argv[1])
+    # 获取目标地址和网络接口#############################################
+    addr_list = sys.argv[1].split(',')  # 将逗号分隔的字符串转换为IP地址列表
+    message = sys.argv[2]
+    num_messages = int(sys.argv[3])
     iface = get_if()
 
-    # 构造数据包
-    pkt = Ether(src=get_if_hwaddr(iface), dst="ff:ff:ff:ff:ff:ff") / IP(
-        dst=addr, options=IPOption_MRI(count=0,
-                                       swtraces=[])) / UDP(
-        dport=4321, sport=1234) / sys.argv[2]
-
-    # 发送数据包
-    try:
-        for i in range(int(sys.argv[3])):
-            sendp(pkt, iface=iface)
-            sleep(0.1)
-    except KeyboardInterrupt:
-        raise
+    # 构造数据包############################################################
+    for addr in addr_list:
+        dst_ip = socket.gethostbyname(addr)
+        # 为每个目标IP地址构造数据包
+        pkt = Ether(src=get_if_hwaddr(iface), dst="ff:ff:ff:ff:ff:ff") / IP(dst=dst_ip, options=IPOption_MRI(count=0,
+                                       swtraces=[])) / UDP(dport=4321, sport=1234) / message
+        # 发送数据包#######################################################
+        try:
+            for i in range(num_messages):
+                sendp(pkt, iface=iface)
+                sleep(0.1)
+        except KeyboardInterrupt:
+            print("Interrupted")
+            break
 
 # 程序入口
 if __name__ == '__main__':

@@ -98,7 +98,7 @@ def handle_pkt(pkt):
         # 打印或处理IPOption_INT字段
                 print("    Loss Bit 1:", option.loss_bit1)
                 print("    Loss Bit 2:", option.loss_bit2)
-                print("    Loss Bit 2:", option.loss_bit3)###############################################
+                print("    Loss Bit 3:", option.loss_bit3)###############################################
                 print("    Count:", option.count)
         
                 for trace in option.swtraces:
@@ -143,7 +143,7 @@ def handle_pkt(pkt):
     
     Total_Packet = Total_Packet + 1###############################
     
-    if (int(loss_bit1) != Total_Loss_Bit1 or int(loss_bit2) != Total_Loss_Bit2):##################################################
+    if (int(loss_bit1) != Total_Loss_Bit1 or int(loss_bit2) != Total_Loss_Bit2 or int(loss_bit3) != Total_Loss_Bit3):##################################################
         current_time = time.strftime('%H:%M:%S', time.localtime(time.time()))##########################################
         Total_Lost_Packet = Total_Lost_Packet + 1#################################
         Total_Packet = Total_Packet + 1##################################################################################################################################################################
@@ -161,7 +161,13 @@ def handle_pkt(pkt):
             print("[Detail]")
             print("  - Time: " + time.strftime('%H:%M:%S',time.localtime(time.time())))
             print("  - Location: Switch #1")
-        
+        if (int(loss_bit3) != Total_Loss_Bit3): 
+            write_loss_to_csv('loss_data_switch_3.csv', Total_Packet, current_time, 100 * Total_Lost_Packet / Total_Packet)################################
+            print("[Warning]")
+            print("  - Packet Loss Happened!" )
+            print("[Detail]")
+            print("  - Time: " + time.strftime('%H:%M:%S',time.localtime(time.time())))
+            print("  - Location: Switch #3")
         
         print("[More Information]") 
         print("  - Cumulative number of Telemetry Reports: " + str(int(Total_Packet))) 
